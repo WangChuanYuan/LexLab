@@ -15,6 +15,9 @@ public:
     Edges edges;
 
     DFA();
+    Labels getLabels();
+    States getNoEndStates();
+    DFA minimize();
 };
 
 

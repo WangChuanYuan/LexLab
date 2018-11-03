@@ -16,6 +16,7 @@ public:
 
     NFA();
     NFA(Label label);
+    Labels getLabels();
     DFA toDFA();
 };
 

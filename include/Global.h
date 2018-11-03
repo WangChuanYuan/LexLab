@@ -13,26 +13,16 @@ typedef int State;
 typedef vector<State> States;
 typedef char Label;
 typedef vector<Label> Labels;
-typedef struct {
+typedef struct Edge{
     State from;
     State to;
     Label label;
+
+    bool operator == (Edge edge){
+        return from == edge.from && to == edge.to && label == edge.label;
+    }
 } Edge;
 typedef vector<Edge> Edges;
-class DFAState {
-public:
-    int id;
-    States states;
-    DFAState(int i, States s) {
-        id = i;
-        states = s;
-        //排序方便比较是否相等
-        sort(states.begin(), states.end());
-    }
-    bool operator == (DFAState ds) {
-        return states == ds.states;
-    }
-};
 
 const char JOIN = '.';
 const char UNION = '|';

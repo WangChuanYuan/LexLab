@@ -3,8 +3,8 @@
 //
 #include <utility>
 #include <stack>
-#include "RECompiler.h"
-#include "Global.h"
+#include "../include/RECompiler.h"
+#include "../include/Global.h"
 
 bool isOp(char c) {
     return c == LEFT_BRACKET || c == RIGHT_BRACKET || c == JOIN || c == UNION || c == CLOSURE;
@@ -207,6 +207,7 @@ NFA RECompiler::toNFA() {
     char c;
     stack<NFA> s;
     NFA fa, left, right;
+    NFA::n_stateCount = 0;
     for(int i = 0; i < len; i++){
         c = regex.at(i);
         switch(c){

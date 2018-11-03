@@ -16,7 +16,6 @@ private:
 public:
     RECompiler();
     RECompiler(RE regex);
-    ~RECompiler();
 
     bool isLegal();
     NFA toNFA();
