@@ -5,7 +5,7 @@
 #define LEXLAB_RECOMPILER_H
 
 #include <string>
-#include "FA.h"
+#include "NFA.h"
 
 using namespace std;
 typedef string RE;
@@ -19,7 +19,7 @@ public:
     ~RECompiler();
 
     bool isLegal();
-    FA toNFA();
+    NFA toNFA();
 };
 
 #endif //LEXLAB_RECOMPILER_H

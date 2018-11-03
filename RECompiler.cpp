@@ -122,7 +122,7 @@ RE toPostfix(RE re) {
     return res;
 }
 
-FA FA_join(FA left, FA right){
+NFA NFA_join(NFA left, NFA right){
     Edge trans{left.end, right.start, EPSILON};
     left.edges.insert(left.edges.end(), right.edges.begin(), right.edges.end());
     left.end = right.end;
@@ -130,8 +130,8 @@ FA FA_join(FA left, FA right){
     return left;
 }
 
-FA FA_union(FA left, FA right){
-    FA fa = FA();
+NFA NFA_union(NFA left, NFA right){
+    NFA fa = NFA();
     Edge trans1{fa.start, left.start, EPSILON};
     Edge trans2{fa.start, right.start, EPSILON};
     Edge trans3{left.end, fa.end, EPSILON};
@@ -145,8 +145,8 @@ FA FA_union(FA left, FA right){
     return fa;
 }
 
-FA FA_closure(FA fa){
-    FA res = FA();
+NFA NFA_closure(NFA fa){
+    NFA res = NFA();
     Edge trans1{res.start, fa.start, EPSILON};
     Edge trans2{res.start, res.end, EPSILON};
     Edge trans3{fa.end, fa.start, EPSILON};
@@ -158,8 +158,9 @@ FA FA_closure(FA fa){
     res.edges.push_back(trans4);
     return res;
 }
-/*--------------------------------------------------*/
-
+/*--------------------------------------------------
+ * 以下为类方法
+ * ------------------------------------------------*/
 RECompiler::RECompiler() : regex("") {}
 
 RECompiler::RECompiler(RE re) : regex(std::move(re)) {}
@@ -198,14 +199,14 @@ bool RECompiler::isLegal() {
  * 使用Thompson算法将正则表达式转为NFA
  * @return
  */
-FA RECompiler::toNFA() {
+NFA RECompiler::toNFA() {
     regex = integrity(regex);
     regex = toPostfix(regex);
 
     int len = regex.size();
     char c;
-    stack<FA> s;
-    FA fa, left, right;
+    stack<NFA> s;
+    NFA fa, left, right;
     for(int i = 0; i < len; i++){
         c = regex.at(i);
         switch(c){
@@ -214,7 +215,7 @@ FA RECompiler::toNFA() {
                 s.pop();
                 left = s.top();
                 s.pop();
-                fa = FA_join(left, right);
+                fa = NFA_join(left, right);
                 s.push(fa);
                 break;
             case UNION:
@@ -222,17 +223,17 @@ FA RECompiler::toNFA() {
                 s.pop();
                 left = s.top();
                 s.pop();
-                fa = FA_union(left, right);
+                fa = NFA_union(left, right);
                 s.push(fa);
                 break;
             case CLOSURE:
                 left = s.top();
                 s.pop();
-                fa = FA_closure(left);
+                fa = NFA_closure(left);
                 s.push(fa);
                 break;
             default:
-                fa = FA(c);
+                fa = NFA(c);
                 s.push(fa);
         }
     }

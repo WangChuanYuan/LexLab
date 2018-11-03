@@ -3,4 +3,4 @@ project(LexLab)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(LexLab main.cpp FA.h RECompiler.cpp RECompiler.h FA.cpp Global.h)
+add_executable(LexLab main.cpp Global.h RECompiler.cpp RECompiler.h NFA.cpp NFA.h DFA.cpp DFA.h)
