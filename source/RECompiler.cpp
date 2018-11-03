@@ -207,7 +207,7 @@ NFA RECompiler::toNFA() {
     char c;
     stack<NFA> s;
     NFA fa, left, right;
-    NFA::n_stateCount = 0;
+    NFA::n_stateCount = NFA::n_stateCount - 6;
     for(int i = 0; i < len; i++){
         c = regex.at(i);
         switch(c){

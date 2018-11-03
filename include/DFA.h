@@ -17,6 +17,7 @@ public:
     DFA();
     Labels getLabels();
     States getNoEndStates();
+    State transTo(State state, Label label);
     DFA minimize();
 };
 
