@@ -1,0 +1,10 @@
+10 is num.
+20 is num.
+3.5 is decimal.
+32.5 is decimal.
+ou is id.
+o_a1 is id.
+au3_ is id.
+_ai is id.
+^^{} is illegal.
+^^{} is illegal.

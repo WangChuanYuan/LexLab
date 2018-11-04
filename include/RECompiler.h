@@ -19,7 +19,7 @@ public:
     NFA NFA_union(NFA left, NFA right);
     NFA NFA_closure(NFA fa);
     NFA toNFA();
-    NFA merge(vector<NFA> nfas);
+    static NFA merge(vector<NFA> nfas);
 };
 
 #endif //LEXLAB_RECOMPILER_H
