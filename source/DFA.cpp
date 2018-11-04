@@ -15,6 +15,27 @@ States move(States states, Label label, Edges edges) {
     return subset;
 }
 
+State transTo(State state, Label label, Edges edges) {
+    for (int i = 0; i < edges.size(); i++) {
+        if (edges[i].from == state && edges[i].label == label)
+            return edges[i].to;
+    }
+    return -1;
+}
+
+bool isDividable(States states, Label label, Edges edges){
+    bool hasEnd = false;
+    bool noEnd = false;
+    for(int i = 0; i < states.size(); i++) {
+        if(transTo(states[i], label, edges) != -1)
+            hasEnd = true;
+        else noEnd = true;
+    }
+    if(hasEnd == true && noEnd == true)
+        return true;
+    else return false;
+}
+
 States difference(States s1, States s2) {
     States res = States();
     for (int i = 0; i < s1.size(); i++) {
@@ -54,14 +75,6 @@ States DFA::getNoEndStates() {
     return states;
 }
 
-State DFA::transTo(State state, Label label) {
-    for (int i = 0; i < edges.size(); i++) {
-        if (edges[i].from == state && edges[i].label == label)
-            return edges[i].to;
-    }
-    return EPSILON;
-}
-
 DFA DFA::minimize() {
     DFA minDFA = DFA();
     d_stateCount--;
@@ -84,10 +97,15 @@ DFA DFA::minimize() {
                 sub = move(currStates, label, edges);
                 int flag = 0;
                 for (int k = 0; k < minStates.size(); k++) {
-                    if (difference(sub, minStates[k]).size() != 0)
+                    //存在一个没有转换，一个有转换的情况
+                    if (isDividable(currStates, label, edges))
+                        flag++;
+                    //存在都有转换，但转换分布在不同节点中 或 都没有转换
+                    else if (difference(sub, minStates[k]).size() > 0 && difference(sub, minStates[k]).size() < sub.size())
                         flag++;
                 }
-                if (flag == minStates.size()) {
+                // == minStates.size()
+                if (flag) {
                     glag++;
                     break;
                 }
@@ -108,7 +126,7 @@ DFA DFA::minimize() {
                     States temp = States();
                     temp.push_back(currStates[n]);
                     sub = move(temp, label, edges);
-                    if (difference(sub, minStates[pos]).size() == 0)
+                    if (!sub.empty() && difference(sub, minStates[pos]).size() == 0)
                         next_one.push_back(currStates[n]);
                     else next_two.push_back(currStates[n]);
                 }
@@ -136,14 +154,14 @@ DFA DFA::minimize() {
             rep = minStates[i][0];
         }
         represent.push_back(rep);
-        if(exists(ends, rep)) {
+        if (exists(ends, rep)) {
             minDFA.ends.push_back(rep);
             for (int j = 0; j < minStates[i].size(); j++) {
-                if(minDFA.tagsMap.find(rep) == minDFA.tagsMap.end()){
+                if (minDFA.tagsMap.find(rep) == minDFA.tagsMap.end()) {
                     minDFA.tagsMap[rep] = Tags();
                 }
                 for (int k = 0; k < tagsMap[minStates[i][j]].size(); k++) {
-                    if(!exists(minDFA.tagsMap[rep], tagsMap[minStates[i][j]][k]))
+                    if (!exists(minDFA.tagsMap[rep], tagsMap[minStates[i][j]][k]))
                         minDFA.tagsMap[rep].push_back(tagsMap[minStates[i][j]][k]);
                 }
             }
@@ -155,7 +173,7 @@ DFA DFA::minimize() {
     //确定边
     for (int i = 0; i < edges.size(); i++) {
         Edge edge{representMap[edges[i].from], representMap[edges[i].to], edges[i].label};
-        if(!exists(minDFA.edges, edge))
+        if (!exists(minDFA.edges, edge))
             minDFA.edges.push_back(edge);
     }
     return minDFA;

@@ -29,7 +29,7 @@ typedef struct Edge{
 } Edge;
 typedef vector<Edge> Edges;
 
-const char JOIN = '.';
+const char JOIN = '+';
 const char UNION = '|';
 const char CLOSURE = '*';
 const char LEFT_BRACKET = '(';
