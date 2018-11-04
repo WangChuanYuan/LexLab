@@ -7,4 +7,3 @@ o_a1 is id.
 au3_ is id.
 _ai is id.
 ^^{} is illegal.
-^^{} is illegal.

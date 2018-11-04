@@ -36,7 +36,6 @@ int main() {
         for (char c : word) {
             state = transTo(state, c, edges);
             if(state == -1){
-                fout << word << " is illegal." << endl;
                 break;
             }
         }
