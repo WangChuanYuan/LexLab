@@ -2,7 +2,6 @@
 // Created by 王川源 on 2018/11/2.
 //
 #include "../include/DFA.h"
-#include <map>
 
 States move(States states, Label label, Edges edges) {
     States subset = States();
@@ -34,6 +33,7 @@ DFA::DFA() {
     start = d_stateCount++;
     ends = States();
     edges = Edges();
+    tagsMap = map<State, Tags>();
 }
 
 Labels DFA::getLabels() {
@@ -136,14 +136,21 @@ DFA DFA::minimize() {
             rep = minStates[i][0];
         }
         represent.push_back(rep);
+        if(exists(ends, rep)) {
+            minDFA.ends.push_back(rep);
+            for (int j = 0; j < minStates[i].size(); j++) {
+                if(minDFA.tagsMap.find(rep) == minDFA.tagsMap.end()){
+                    minDFA.tagsMap[rep] = Tags();
+                }
+                for (int k = 0; k < tagsMap[minStates[i][j]].size(); k++) {
+                    if(!exists(minDFA.tagsMap[rep], tagsMap[minStates[i][j]][k]))
+                        minDFA.tagsMap[rep].push_back(tagsMap[minStates[i][j]][k]);
+                }
+            }
+        }
         for (int j = 0; j < minStates[i].size(); j++) {
             representMap.insert(pair<State, State>(minStates[i][j], rep));
         }
-    }
-    //确定终态
-    for (int i = 0; i < represent.size(); i++) {
-        if (exists(ends, represent[i]))
-            minDFA.ends.push_back(represent[i]);
     }
     //确定边
     for (int i = 0; i < edges.size(); i++) {

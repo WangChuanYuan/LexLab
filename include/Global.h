@@ -5,10 +5,15 @@
 #define LEXLAB_GLOBAL_H
 
 #include <vector>
+#include <string>
+#include <map>
 #include <algorithm>
 
 using namespace std;
 
+typedef string RE;
+typedef string Tag;
+typedef vector<Tag> Tags;
 typedef int State;
 typedef vector<State> States;
 typedef char Label;

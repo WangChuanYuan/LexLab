@@ -43,15 +43,19 @@ int NFA::n_stateCount(0);
 
 NFA::NFA() {
     start = n_stateCount++;
-    end = n_stateCount++;
+    ends = States();
+    ends.push_back(n_stateCount++);
     edges = Edges();
+    tagsMap = map<State, Tags>();
 }
 
 NFA::NFA(Label label) {
     start = n_stateCount++;
-    end = n_stateCount++;
+    ends = States();
+    ends.push_back(n_stateCount++);
     edges = Edges();
-    edges.push_back(Edge{start, end, label});
+    edges.push_back(Edge{start, ends[0], label});
+    tagsMap = map<State, Tags>();
 }
 
 Labels NFA::getLabels() {
@@ -89,8 +93,23 @@ DFA NFA::toDFA() {
                         int id = DFA::d_stateCount++;
                         dfa.edges.push_back({i, id, label});
                         //判断是否加入DFA终态
-                        if (exists(to, end) && !exists(dfa.ends, id))
-                            dfa.ends.push_back(id);
+                        for(int i = 0; i < ends.size(); i++){
+                            bool flag = false;
+                            if(exists(to, ends[i])){
+                                flag = true;
+                            }
+                            if(flag) {
+                                if(!exists(dfa.ends, id))
+                                    dfa.ends.push_back(id);
+                                for(int j = 0; j < tagsMap[ends[i]].size(); j++) {
+                                    if(dfa.tagsMap.find(id) == dfa.tagsMap.end()){
+                                        dfa.tagsMap[id] = Tags();
+                                    }
+                                    if(!exists(dfa.tagsMap[id], tagsMap[ends[i]][j]))
+                                        dfa.tagsMap[id].push_back(tagsMap[ends[i]][j]);
+                                }
+                            }
+                        }
                     } else {
                         //增加DFA的边
                         int id = distance(dfaStates.begin(), find(dfaStates.begin(), dfaStates.end(), to));

@@ -13,6 +13,7 @@ public:
     State start;
     States ends;
     Edges edges;
+    map<State, Tags> tagsMap;
 
     DFA();
     Labels getLabels();

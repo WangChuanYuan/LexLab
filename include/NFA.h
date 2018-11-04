@@ -11,8 +11,9 @@ class NFA {
 public:
     static int n_stateCount;
     State start;
-    State end;
+    States ends;
     Edges edges;
+    map<State, Tags> tagsMap;
 
     NFA();
     NFA(Label label);

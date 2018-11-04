@@ -4,21 +4,22 @@
 #ifndef LEXLAB_RECOMPILER_H
 #define LEXLAB_RECOMPILER_H
 
-#include <string>
 #include "NFA.h"
-
-using namespace std;
-typedef string RE;
 
 class RECompiler {
 private:
     RE regex;
+    Tag tag;
 public:
     RECompiler();
-    RECompiler(RE regex);
+    RECompiler(RE regex, Tag tag);
 
     bool isLegal();
+    NFA NFA_join(NFA left, NFA right);
+    NFA NFA_union(NFA left, NFA right);
+    NFA NFA_closure(NFA fa);
     NFA toNFA();
+    NFA merge(vector<NFA> nfas);
 };
 
 #endif //LEXLAB_RECOMPILER_H

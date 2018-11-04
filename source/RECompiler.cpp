@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by 王川源 on 2018/10/30.
 //
@@ -11,7 +13,7 @@ bool isOp(char c) {
 }
 
 bool isLetter(char c) {
-    return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+    return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) || (c >= '0' && c <= '9');
 }
 
 /**
@@ -121,49 +123,12 @@ RE toPostfix(RE re) {
     }
     return res;
 }
-
-NFA NFA_join(NFA left, NFA right){
-    Edge trans{left.end, right.start, EPSILON};
-    left.edges.insert(left.edges.end(), right.edges.begin(), right.edges.end());
-    left.end = right.end;
-    left.edges.push_back(trans);
-    return left;
-}
-
-NFA NFA_union(NFA left, NFA right){
-    NFA fa = NFA();
-    Edge trans1{fa.start, left.start, EPSILON};
-    Edge trans2{fa.start, right.start, EPSILON};
-    Edge trans3{left.end, fa.end, EPSILON};
-    Edge trans4{right.end, fa.end, EPSILON};
-    fa.edges.insert(fa.edges.end(), left.edges.begin(), left.edges.end());
-    fa.edges.insert(fa.edges.end(), right.edges.begin(), right.edges.end());
-    fa.edges.push_back(trans1);
-    fa.edges.push_back(trans2);
-    fa.edges.push_back(trans3);
-    fa.edges.push_back(trans4);
-    return fa;
-}
-
-NFA NFA_closure(NFA fa){
-    NFA res = NFA();
-    Edge trans1{res.start, fa.start, EPSILON};
-    Edge trans2{res.start, res.end, EPSILON};
-    Edge trans3{fa.end, fa.start, EPSILON};
-    Edge trans4{fa.end, res.end, EPSILON};
-    res.edges.insert(res.edges.end(), fa.edges.begin(), fa.edges.end());
-    res.edges.push_back(trans1);
-    res.edges.push_back(trans2);
-    res.edges.push_back(trans3);
-    res.edges.push_back(trans4);
-    return res;
-}
 /*--------------------------------------------------
  * 以下为类方法
  * ------------------------------------------------*/
-RECompiler::RECompiler() : regex("") {}
+RECompiler::RECompiler() : regex(""), tag(""){}
 
-RECompiler::RECompiler(RE re) : regex(std::move(re)) {}
+RECompiler::RECompiler(RE re, Tag t) : regex(std::move(re)), tag(std::move(t)) {}
 
 /**
  * 检查正则表达式是否合法
@@ -193,6 +158,53 @@ bool RECompiler::isLegal() {
     if (!s.empty())
         return false;
     return true;
+}
+
+NFA RECompiler::NFA_join(NFA left, NFA right){
+    Edge trans{left.ends[0], right.start, EPSILON};
+    left.edges.insert(left.edges.end(), right.edges.begin(), right.edges.end());
+    left.ends[0] = right.ends[0];
+    left.edges.push_back(trans);
+    left.tagsMap.clear();
+    Tags tags;
+    tags.push_back(tag);
+    left.tagsMap.insert(pair<State, Tags>(left.ends[0], tags));
+    return left;
+}
+
+NFA RECompiler::NFA_union(NFA left, NFA right){
+    NFA fa = NFA();
+    Edge trans1{fa.start, left.start, EPSILON};
+    Edge trans2{fa.start, right.start, EPSILON};
+    Edge trans3{left.ends[0], fa.ends[0], EPSILON};
+    Edge trans4{right.ends[0], fa.ends[0], EPSILON};
+    fa.edges.insert(fa.edges.end(), left.edges.begin(), left.edges.end());
+    fa.edges.insert(fa.edges.end(), right.edges.begin(), right.edges.end());
+    fa.edges.push_back(trans1);
+    fa.edges.push_back(trans2);
+    fa.edges.push_back(trans3);
+    fa.edges.push_back(trans4);
+    Tags tags;
+    tags.push_back(tag);
+    fa.tagsMap.insert(pair<State, Tags>(fa.ends[0], tags));
+    return fa;
+}
+
+NFA RECompiler::NFA_closure(NFA fa){
+    NFA res = NFA();
+    Edge trans1{res.start, fa.start, EPSILON};
+    Edge trans2{res.start, res.ends[0], EPSILON};
+    Edge trans3{fa.ends[0], fa.start, EPSILON};
+    Edge trans4{fa.ends[0], res.ends[0], EPSILON};
+    res.edges.insert(res.edges.end(), fa.edges.begin(), fa.edges.end());
+    res.edges.push_back(trans1);
+    res.edges.push_back(trans2);
+    res.edges.push_back(trans3);
+    res.edges.push_back(trans4);
+    Tags tags;
+    tags.push_back(tag);
+    res.tagsMap.insert(pair<State, Tags>(res.ends[0], tags));
+    return res;
 }
 
 /**
@@ -241,4 +253,23 @@ NFA RECompiler::toNFA() {
     fa = s.top();
     s.pop();
     return fa;
+}
+
+NFA RECompiler::merge(vector<NFA> nfas) {
+    if(nfas.size() == 1)
+        return nfas[0];
+    else {
+        NFA merged = NFA();
+        NFA::n_stateCount--;
+        States ends = States();
+        for(int i = 0; i < nfas.size(); i++) {
+            merged.edges.insert(merged.edges.end(), nfas[i].edges.begin(), nfas[i].edges.end());
+            ends.insert(ends.end(), nfas[i].ends.begin(), nfas[i].ends.end());
+            Edge edge{merged.start, nfas[i].start, EPSILON};
+            merged.edges.push_back(edge);
+            merged.tagsMap.insert(nfas[i].tagsMap.begin(), nfas[i].tagsMap.end());
+        }
+        merged.ends = ends;
+        return merged;
+    }
 }
