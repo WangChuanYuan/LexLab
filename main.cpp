@@ -6,7 +6,7 @@ int main() {
     if(reCompiler.isLegal()){
         NFA nfa = reCompiler.toNFA();
         DFA dfa = nfa.toDFA();
-        dfa.minimize();
+        DFA dfao = dfa.minimize();
         cout << "over" << endl;
     }
     return 0;
